@@ -15,7 +15,7 @@ function post_error(path::AbstractString, ex::Exception)
     local url
     try
         url = "$RUNTIME_URL/$path"
-        HTTP.post(url, headers, JSON.json(body))
+        @async HTTP.post(url, headers, JSON.json(body))
         @info "Notified lambda runtime about the error" url ex
     catch failure
         @error "Unable to notify lambda runtime about the error" url ex failure
@@ -52,7 +52,7 @@ function main_loop(mod::Module)
             @info "Got response from handler" response
             state = :handled
 
-            HTTP.post("$RUNTIME_URL/runtime/invocation/$request_id/response", [], response)
+            @async HTTP.post("$RUNTIME_URL/runtime/invocation/$request_id/response", [], response)
             @info "notified lambda runtime"
             state = :finished
         catch ex
