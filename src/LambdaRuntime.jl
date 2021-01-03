@@ -3,16 +3,6 @@ module LambdaRuntime
 using HTTP
 using JSON
 
-const AWS_LAMBDA_RUNTIME_API = get(ENV, "AWS_LAMBDA_RUNTIME_API", "")
-const LAMBDA_TASK_ROOT = get(ENV, "LAMBDA_TASK_ROOT", "")
-const HANDLER = Symbol(get(ENV, "_HANDLER", "handle_event"))
-const RUNTIME_URL = "http://$AWS_LAMBDA_RUNTIME_API/2018-06-01"
-
-function __init__()
-    @info "Initializing lambda"
-    @info "Settings" AWS_LAMBDA_RUNTIME_API LAMBDA_TASK_ROOT HANDLER
-end
-
 function post_error(path::AbstractString, ex::Exception)
     headers = [
         "Content-type" => "application/json",
@@ -34,7 +24,11 @@ end
 
 function init(mod::Module)
     try
-        # TODO
+        global AWS_LAMBDA_RUNTIME_API = get(ENV, "AWS_LAMBDA_RUNTIME_API", "")
+        global LAMBDA_TASK_ROOT = get(ENV, "LAMBDA_TASK_ROOT", "")
+        global HANDLER = Symbol(get(ENV, "_HANDLER", "handle_event"))
+        global RUNTIME_URL = "http://$AWS_LAMBDA_RUNTIME_API/2018-06-01"
+        @info "Settings" AWS_LAMBDA_RUNTIME_API LAMBDA_TASK_ROOT HANDLER
     catch ex
         @error "Initializtion error" ex
         post_error("runtime/init/error", ex)
